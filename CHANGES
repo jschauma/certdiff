@@ -1,0 +1,7 @@
+Changelog:
+
+Version 0.2 (2016-11-16)
+* don't fail if no config file is given
+
+Version 0.1 (2016-11-16)
+* first packaged version of certdiff

@@ -1,0 +1,17 @@
+ct = true
+cabundle = /etc/pki/tls/cert.pem
+domains = example.com, example.net
+keyLength = 2048
+maxValidity = 180
+maxSANs = 20
+maxWildcards = 4
+
+# We only accept certificates issued by the
+# DigiCert High Assurance EV Root CA
+pins = sha1/gzF+YoVCU9bXeDGQ7JGQVumRueM=
+
+# Oh, wait, we changed our mind, we also accept
+# VeriSign Class 3 Public Primary CA - G5
+rootSerials = 18DAD19E267DE8BB4A2158CDCC6B3B4A
+
+sigAlgs = SHA1-RSA, SHA256-RSA

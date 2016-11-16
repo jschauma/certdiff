@@ -1,0 +1,182 @@
+.\"
+.Dd November 16, 2016
+.Dt certdiff 1
+.Os
+.Sh NAME
+.Nm certdiff
+.Nd report differences in certificate properties
+.Sh SYNOPSIS
+.Nm
+.Op Fl Vhv
+.Op Fl c Ar config
+.Op Fl p Ar port
+.Op Fl s Ar server
+.Sh DESCRIPTION
+The
+.Nm
+tool will compare the properties of a given certificate
+against the prescribed properties from the
+configuration file and report on any differences.
+.Pp
+The certificate may be provided on STDIN;
+alternatively,
+.Nm
+can connect to a remote server and report on the
+presented certificate.
+.Sh OPTIONS
+The following options are supported by
+.Nm :
+.Bl -tag -width c_config_
+.It Fl V
+Print version information and exit.
+.It Fl c Ar config
+Read the configuration from this file.
+If not specified,
+.Nm
+will try
+.Ar ~/.certdiffrc
+and
+.Ar /etc/certdiffrc .
+.Pp
+See
+.Xr CONFIGURATION
+for details.
+.It Fl h
+Display help and exit.
+.It Fl p Ar port
+Connect to this port on the given server.
+.It Fl s Ar server
+Inspect this server's certificate chain.
+.It Fl v
+Be verbose.
+Can be specified multiple times.
+.El
+.Sh DETAILS
+While numerous tools and services exist to 'grade' the
+quality of a given server's TLS connection and
+certificate use, it is often not possible to automate
+a check for compliance with a preferred configuration.
+.Pp
+For example, an organization may require that all
+certificates in use on its services are issued from a
+given set of root CAs, has a given validity period, a
+limitation on SANs or wildcard names, etc.
+.Nm
+lets you specify such requirements in its
+configuration file (see
+.Xr CONFIGURATION Ns )
+and report on the differences.
+.Pp
+A certificate chain can be provided via STDIN;
+it should contain the leaf certificate as well
+as any intermediate certificates.
+Inclusion of the root certificate in the chain file is
+optional, but may be necessary if the local root CA
+bundle does not include the root in question.
+.Pp
+If no file is provided, then
+.Nm
+will attempt to connect to the given server, expecting
+an X509 certificate chain.
+.Sh CONFIGURATION
+The configuration file for
+.Nm
+is a plain text file containing key=value pairs.
+Whitespace around either is ignored, as are following
+(and including) the '#' character until the end of
+line.
+.Pp
+Most values are comma-separated lists of strings;
+\'boolean' values are '0', '1', 'yes', 'no', 'true',
+\'false'.
+.Pp
+The following configuration options are supported:
+.Bl -tag -width maxWildcards
+.It ct
+A 'boolean' value indicating whether or not a
+certificate transparency log must exist for the given
+certificate.
+.It domains
+A comma-separated list of second-level domains that
+may be used for the given certificate in all of its
+SANs or CN.
+.Pp
+Domains are automatically prefixed with a '.' to avoid
+accidental substring matching.
+.It keyLength
+The minimum key length of a certificate.
+Keys larger than this are permitted.
+.It maxValidity
+The number of days that a certificate should be valid
+for at most.
+.It maxSANs
+The maximum number of SANs permitted for a single
+certificate.
+.It maxWildcards
+The maximum number of wildcard names (SANs + CN)
+permitted for a single certificate.
+.It pins
+A comma-separated list of key pins to which the
+certificate must chain.
+Most commonly, these might be the pins for all the
+root CA that the given service would be allowed to
+have a certificate from.
+.It rootSerials
+A comma-separated list of hexadecimal serial
+numbers to which the certificate must chain.
+This is similar to the 'pins' configuration option.
+.It sigAlgs
+A comma-separated list of signature algorithms.
+Valid algorithms are: MD2-RSA, MD5-RSA,
+SHA1-RSA, SHA256-RSA, SHA384-RSA,
+SHA512-RSA, DSA-SHA1, DSA-SHA256,
+ECDSA-SHA1, ECDSA-SHA256, ECDSA-SHA384,
+ECDSA-SHA512
+.El
+.Pp
+A sample configuration file might look like this:
+.Bd -literal -offset indent
+ct = true
+domains = example.com, example.net
+keyLength = 2048
+maxValidity = 180
+maxSANs = 20
+maxWildcards = 4
+
+# We only accept certificates issued by the
+# DigiCert High Assurance EV Root CA
+pins = sha256/WoiWRyIOVNa9ihaBciRSC7XHjliYS9VwUGOIud4PB18=
+
+# Oh, wait, we changed our mind, we also accept
+# VeriSign Class 3 Public Primary CA - G5
+rootSerials = 18DAD19E267DE8BB4A2158CDCC6B3B4A
+
+sigAlgs = SHA256-RSA
+.Ed
+.Sh EXAMPLES
+The following examples illustrate common usage of this tool.
+.Pp
+To report the status of the cert offered by
+www.example.com on port 443:
+.Bd -literal -offset indent
+$ certdiff www.example.com
+.Ed
+.Pp
+To report the status of the certificate chain found in
+the file 'server.pem':
+.Bd -literal -offset indent
+$ certdiff <server.pem 
+.Ed
+.Sh EXIT STATUS
+.Ex -std 
+.Sh SEE ALSO
+.Xr cipherdiff 1 ,
+.Xr openssl 1
+.Sh HISTORY
+.Nm
+was originally written by
+.An Jan Schaumann
+.Aq jschauma@netmeister.org
+in November 2016.
+.Sh BUGS
+Please file bugs and feature requests by emailing the author.
