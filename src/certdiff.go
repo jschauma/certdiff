@@ -71,7 +71,7 @@ const EXIT_FAILURE = 1
 const EXIT_SUCCESS = 0
 
 const PROGNAME = "certdiff"
-const VERSION = "0.4"
+const VERSION = "0.5"
 
 const CTURL = "https://crt.sh/?serial="
 
@@ -616,7 +616,7 @@ func getCertchainFromServer() {
 	verbose(fmt.Sprintf("Retrieving certificate chain in use on '%s'...", server), 1)
 
 	sclient := []string{"s_client", "-showcerts", "-connect", server}
-	verbose(fmt.Sprintf("Running %s...", sclient), 2)
+	verbose(fmt.Sprintf("Running openssl %s...", sclient), 2)
 
 	cmd := exec.Command("openssl", sclient...)
 	cmd.Stdin = nil
@@ -637,6 +637,10 @@ func getCertchainFromServer() {
 
 	if err := cmd.Wait(); err != nil {
 		fail(fmt.Sprintf("Unable to connect to %s: %s\n", server, cmdErr.String()))
+	}
+
+	if strings.Contains(cmdErr.String(), ":error:") {
+		fail(fmt.Sprintf("'openssl s_client' failed: %s\n", cmdErr.String()))
 	}
 }
 

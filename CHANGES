@@ -1,5 +1,8 @@
 Changelog:
 
+Version 0.5 (2016-01-04)
+* catch some more s_client failures
+
 Version 0.4 (2016-01-04)
 * bubble up s_client failures
 * add '-S sni'
