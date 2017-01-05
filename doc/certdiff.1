@@ -1,5 +1,5 @@
 .\"
-.Dd November 16, 2016
+.Dd January 04, 2017
 .Dt certdiff 1
 .Os
 .Sh NAME
@@ -8,6 +8,7 @@
 .Sh SYNOPSIS
 .Nm
 .Op Fl Vhv
+.Op Fl S Ar sni
 .Op Fl c Ar config
 .Op Fl p Ar port
 .Op Fl s Ar server
@@ -29,6 +30,8 @@ The following options are supported by
 .Bl -tag -width c_config_
 .It Fl V
 Print version information and exit.
+.It Fl S Ar sni
+Specify the Server Name Indication to use.
 .It Fl c Ar config
 Read the configuration from this file.
 If not specified,

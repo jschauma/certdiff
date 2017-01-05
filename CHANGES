@@ -1,5 +1,14 @@
 Changelog:
 
+Version 0.4 (2016-01-04)
+* bubble up s_client failures
+* add '-S sni'
+* avoid duplicate pin calculation and domain checking
+
+Version 0.3 (2016-12-21)
+* expand '~' in config file arguments
+* make sure all SANs and SN are checked for domains
+
 Version 0.2 (2016-11-16)
 * don't fail if no config file is given
 
