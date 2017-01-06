@@ -62,6 +62,7 @@ import (
 	"os/exec"
 	"os/user"
 	"regexp"
+	"sort"
 	"strconv"
 	"strings"
 	"time"
@@ -71,7 +72,7 @@ const EXIT_FAILURE = 1
 const EXIT_SUCCESS = 0
 
 const PROGNAME = "certdiff"
-const VERSION = "0.5"
+const VERSION = "0.6"
 
 const CTURL = "https://crt.sh/?serial="
 
@@ -173,7 +174,7 @@ func buildChain(cert *x509.Certificate) {
 	for c.Issuer.CommonName != c.Subject.CommonName {
 		found = false
 		verbose(fmt.Sprintf("Looking for issuer of %0x...", c.SerialNumber), 2)
-		for tmp, _ := range CERTS {
+		for _, tmp := range sortCerts() {
 			if err := c.CheckSignatureFrom(tmp); err == nil {
 				verbose(fmt.Sprintf("Valid signature on %0x from %s.",
 							c.SerialNumber, tmp.Subject.CommonName), 3)
@@ -791,6 +792,28 @@ func parseConfig() {
 
 func printVersion() {
 	fmt.Printf("%v version %v\n", PROGNAME, VERSION)
+}
+
+func sortCerts() (certs []*x509.Certificate) {
+	verbose("Sorting certificates by serial number...", 3)
+
+	var serials []string
+	certsBySerial := map[string]*x509.Certificate{}
+
+	for c, _ := range CERTS {
+		s := fmt.Sprintf("%0x", c.SerialNumber)
+		serials = append(serials, s)
+		certsBySerial[s] = c
+	}
+
+	sort.Strings(serials)
+
+	for _, s := range serials {
+		verbose(fmt.Sprintf("Adding (in order): %s", s), 4)
+		certs = append(certs, certsBySerial[s])
+	}
+
+	return
 }
 
 func usage(out io.Writer) {
