@@ -1,5 +1,5 @@
 .\"
-.Dd January 04, 2017
+.Dd January 11, 2017
 .Dt certdiff 1
 .Os
 .Sh NAME
@@ -171,7 +171,11 @@ the file 'server.pem':
 $ certdiff <server.pem 
 .Ed
 .Sh EXIT STATUS
-.Ex -std 
+.Nm
+returns 0 if no issues were encountered.
+Otherwise,
+.Nm
+increments the return value for every problem.
 .Sh SEE ALSO
 .Xr cipherdiff 1 ,
 .Xr openssl 1

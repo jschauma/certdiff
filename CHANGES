@@ -1,5 +1,9 @@
 Changelog:
 
+Version 0.7 (2017-01-11)
+* let the return code reflect the number of problems
+  encountered
+
 Version 0.6 (2017-01-06)
 * sort cert chain before checking trust
 

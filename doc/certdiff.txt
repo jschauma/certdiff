@@ -130,7 +130,8 @@ EXAMPLES
 	   $ certdiff <server.pem
 
 EXIT STATUS
-     The certdiff utility exits 0 on success, and >0 if an error occurs.
+     certdiff returns 0 if no issues were encountered.	Otherwise, certdiff
+     increments the return value for every problem.
 
 SEE ALSO
      cipherdiff(1), openssl(1)
@@ -142,4 +143,4 @@ HISTORY
 BUGS
      Please file bugs and feature requests by emailing the author.
 
-NetBSD 7.0		       January 04, 2017			    NetBSD 7.0
+NetBSD 7.0		       January 11, 2017			    NetBSD 7.0
