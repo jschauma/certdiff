@@ -4,7 +4,7 @@ NAME
      certdiff -- report differences in certificate properties
 
 SYNOPSIS
-     certdiff [-Vhv] [-S sni] [-c config] [-p port] [-s server]
+     certdiff [-Vhlv] [-S sni] [-c config] [-p port] [-s server]
 
 DESCRIPTION
      The certdiff tool will compare the properties of a given certificate
@@ -27,6 +27,8 @@ OPTIONS
 		See CONFIGURATION for details.
 
      -h		Display help and exit.
+
+     -l		List properties of the certificate only.
 
      -p port	Connect to this port on the given server.
 
@@ -143,4 +145,4 @@ HISTORY
 BUGS
      Please file bugs and feature requests by emailing the author.
 
-NetBSD 7.0		       January 11, 2017			    NetBSD 7.0
+NetBSD 7.0		       January 17, 2017			    NetBSD 7.0

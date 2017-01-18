@@ -1,5 +1,8 @@
 Changelog:
 
+Version 0.8 (2017-01-17)
+* add '-l' option to only list cert properties
+
 Version 0.7 (2017-01-11)
 * let the return code reflect the number of problems
   encountered

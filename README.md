@@ -90,3 +90,34 @@ $ certdiff -s www.yahoo.com
 1c25430ed0a602e8cc3a977b0539cce5 'www.yahoo.com' (leaf): too many SANs (65 > 20)
 $ 
 ```
+
+### Listing certificate properties
+
+certdiff(1) also allows you to just report certificate
+properties.  That is very similar to running
+
+```
+openssl x509 -text -noout
+```
+
+but adds certificate pins, the full chain, and some
+other details:
+
+```
+$ certdiff -l -s www.symantec.com
+
+Leaf cert 'www.symantec.com' from input:
+  signed by 'Symantec Class 3 EV SSL CA - G3' (7ee14a6f6feff2d37f3fad654d3adab4; sha1/R0nfFlf0bIvSjHkbmfufKIEqYOA=; sha256/gMxWOrX4PMQesK9qFNbYBxjBfjUvlkn/vN1n+L9lE5E=)
+    signed by 'VeriSign Class 3 Public Primary Certification Authority - G5' (18dad19e267de8bb4a2158cdcc6b3b4a; sha1/sYEIGhmkwJQf+uiVKMEkyZs0rMc=; sha256/JbQbUG5JMJUoI6brnx0x3vZF6jilxsapbXGVfjhN8Fg=)
+
+CN         : www.symantec.com
+Serial     : 29ea653a26485e380c86b360f00cc1c8
+Validity   : 235
+Verified   : valid
+SANs       : bcportal.symantec.com, go.symantec.com, m.symantec.com, my-qa.symantec.com, my-uat.symantec.com, my.symantec.com, partnernet-internal.norton.com, partnernet-internal.symantec.com, partnernet-qa.norton.com, partnernet-qa.symantec.com, partnernet-sit.symantec.com, partnernet-temp.symantec.com, partnernet-uat.norton.com, partnernet-uat.symantec.com, partnernet.norton.com, partnernet.symantec.com, scm.symantec.com, securityresponse.symantec.com, sites-internal.symantec.com, sites-qa.symantec.com, sites-uat.symantec.com, sites.symantec.com, www.go.symantec.com, www.symantec.com, www4.symantec.com
+KeyLength  : 2048
+Pins       : sha1/1MpIPCkazFdpL6gwT2F2d454B5U=, sha256/JteRGVGWgHPhyIy4rwlk2ZGo+auH/9oWGK2pUKNgZsc=
+SigAlgo    : SHA256-RSA
+CT log     : https://crt.sh/?id=55061361
+
+```

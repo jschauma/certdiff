@@ -1,5 +1,5 @@
 .\"
-.Dd January 11, 2017
+.Dd January 17, 2017
 .Dt certdiff 1
 .Os
 .Sh NAME
@@ -7,7 +7,7 @@
 .Nd report differences in certificate properties
 .Sh SYNOPSIS
 .Nm
-.Op Fl Vhv
+.Op Fl Vhlv
 .Op Fl S Ar sni
 .Op Fl c Ar config
 .Op Fl p Ar port
@@ -46,6 +46,8 @@ See
 for details.
 .It Fl h
 Display help and exit.
+.It Fl l
+List properties of the certificate only.
 .It Fl p Ar port
 Connect to this port on the given server.
 .It Fl s Ar server
