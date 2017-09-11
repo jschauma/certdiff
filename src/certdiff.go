@@ -72,7 +72,7 @@ const EXIT_FAILURE = 1
 const EXIT_SUCCESS = 0
 
 const PROGNAME = "certdiff"
-const VERSION = "0.8"
+const VERSION = "1.1"
 
 const CTURL = "https://crt.sh/?"
 
@@ -513,7 +513,7 @@ func checkValidity(cert *x509.Certificate) {
 	maxValidity, _ := strconv.Atoi(CONFIG["maxValidity"])
 
 	if int(days) > maxValidity {
-		reportError(fmt.Sprintf("%0x '%s' (leaf): validity > maxValidity (%d > %d)\n",
+		reportError(fmt.Sprintf("%0x '%s' (leaf): validity > maxValidity (%d > %d)",
 				cert.SerialNumber, cert.Subject.CommonName,
 				int(days), maxValidity))
 	}
@@ -677,11 +677,11 @@ func getCertchainFromServer() {
 	extractCertificates(cmdOut, "chain")
 
 	if err := cmd.Wait(); err != nil {
-		fail(fmt.Sprintf("Unable to connect to %s: %s\n", server, cmdErr.String()))
+		fmt.Fprintf(os.Stderr, "Unable to connect to %s: %s\n", server, cmdErr.String())
 	}
 
 	if strings.Contains(cmdErr.String(), ":error:") {
-		fail(fmt.Sprintf("'openssl s_client' failed: %s\n", cmdErr.String()))
+		fmt.Fprintf(os.Stderr, "'openssl s_client' failed: %s\n", cmdErr.String())
 	}
 }
 
