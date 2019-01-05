@@ -1,5 +1,8 @@
 Changelog:
 
+Version 1.4 (2019-01-04)
+* add support for ECDSA certs
+
 Version 1.1 (2017-09-11)
 * s_client(1) failing to connect need not be fatal
 

@@ -23,7 +23,8 @@ The following example configuration file mandates that
 
 * all certificates have Certificate Transparency logs
 * valid domains for Subject and SANs must end in 'example.com' or 'example.net'
-* certificates must use a key length of at least 2048 bits
+* ECDSA certificates must use a key length of at least 386 bits
+* RSA certificates must use a key length of at least 2048 bits
 * certificates must not be valid for more than 180 days
 * certificates must not have more than 20 SANs
 * of the SANs and the Subject, there may be at most 4 wildcard names
@@ -37,7 +38,8 @@ specified in the configuration file.
 ```
 ct = true 
 domains = example.com, example.net
-keyLength = 2048
+keyLengthECDSA = 386
+keyLengthRSA = 2048
 maxValidity = 180
 maxSANs = 20
 maxWildcards = 4

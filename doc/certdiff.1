@@ -1,5 +1,5 @@
 .\"
-.Dd January 17, 2017
+.Dd January 04, 2019
 .Dt certdiff 1
 .Os
 .Sh NAME
@@ -96,7 +96,7 @@ Most values are comma-separated lists of strings;
 \'false'.
 .Pp
 The following configuration options are supported:
-.Bl -tag -width maxWildcards
+.Bl -tag -width keyLengthECDSA
 .It ct
 A 'boolean' value indicating whether or not a
 certificate transparency log must exist for the given
@@ -108,9 +108,13 @@ SANs or CN.
 .Pp
 Domains are automatically prefixed with a '.' to avoid
 accidental substring matching.
-.It keyLength
-The minimum key length of a certificate.
+.It keyLengthECDSA
+The minimum key length for the ECDSA key of the
+certificate's private key.
 Keys larger than this are permitted.
+.It keyLengthRSA
+The minimum key length for the RSA key of the
+certificate's private key.
 .It maxValidity
 The number of days that a certificate should be valid
 for at most.
@@ -143,7 +147,8 @@ A sample configuration file might look like this:
 .Bd -literal -offset indent
 ct = true
 domains = example.com, example.net
-keyLength = 2048
+keyLengthECDSA = 256
+keyLengthRSA = 2048
 maxValidity = 180
 maxSANs = 20
 maxWildcards = 4

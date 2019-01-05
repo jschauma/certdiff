@@ -65,46 +65,51 @@ CONFIGURATION
 
      The following configuration options are supported:
 
-     ct		   A 'boolean' value indicating whether or not a certificate
-		   transparency log must exist for the given certificate.
+     ct		     A 'boolean' value indicating whether or not a certificate
+		     transparency log must exist for the given certificate.
 
-     domains	   A comma-separated list of second-level domains that may be
-		   used for the given certificate in all of its SANs or CN.
+     domains	     A comma-separated list of second-level domains that may
+		     be used for the given certificate in all of its SANs or
+		     CN.
 
-		   Domains are automatically prefixed with a '.' to avoid
-		   accidental substring matching.
+		     Domains are automatically prefixed with a '.' to avoid
+		     accidental substring matching.
 
-     keyLength	   The minimum key length of a certificate.  Keys larger than
-		   this are permitted.
+     keyLengthECDSA  The minimum key length for the ECDSA key of the certifi-
+		     cate's private key.  Keys larger than this are permitted.
 
-     maxValidity   The number of days that a certificate should be valid for
-		   at most.
+     keyLengthRSA    The minimum key length for the RSA key of the certifi-
+		     cate's private key.
 
-     maxSANs	   The maximum number of SANs permitted for a single certifi-
-		   cate.
+     maxValidity     The number of days that a certificate should be valid for
+		     at most.
 
-     maxWildcards  The maximum number of wildcard names (SANs + CN) permitted
-		   for a single certificate.
+     maxSANs	     The maximum number of SANs permitted for a single cer-
+		     tificate.
 
-     pins	   A comma-separated list of key pins to which the certificate
-		   must chain.	Most commonly, these might be the pins for all
-		   the root CA that the given service would be allowed to have
-		   a certificate from.
+     maxWildcards    The maximum number of wildcard names (SANs + CN) permit-
+		     ted for a single certificate.
 
-     rootSerials   A comma-separated list of hexadecimal serial numbers to
-		   which the certificate must chain.  This is similar to the
-		   'pins' configuration option.
+     pins	     A comma-separated list of key pins to which the certifi-
+		     cate must chain.  Most commonly, these might be the pins
+		     for all the root CA that the given service would be
+		     allowed to have a certificate from.
 
-     sigAlgs	   A comma-separated list of signature algorithms.  Valid
-		   algorithms are: MD2-RSA, MD5-RSA, SHA1-RSA, SHA256-RSA,
-		   SHA384-RSA, SHA512-RSA, DSA-SHA1, DSA-SHA256, ECDSA-SHA1,
-		   ECDSA-SHA256, ECDSA-SHA384, ECDSA-SHA512
+     rootSerials     A comma-separated list of hexadecimal serial numbers to
+		     which the certificate must chain.	This is similar to the
+		     'pins' configuration option.
+
+     sigAlgs	     A comma-separated list of signature algorithms.  Valid
+		     algorithms are: MD2-RSA, MD5-RSA, SHA1-RSA, SHA256-RSA,
+		     SHA384-RSA, SHA512-RSA, DSA-SHA1, DSA-SHA256, ECDSA-SHA1,
+		     ECDSA-SHA256, ECDSA-SHA384, ECDSA-SHA512
 
      A sample configuration file might look like this:
 
 	   ct = true
 	   domains = example.com, example.net
-	   keyLength = 2048
+	   keyLengthECDSA = 256
+	   keyLengthRSA = 2048
 	   maxValidity = 180
 	   maxSANs = 20
 	   maxWildcards = 4
@@ -145,4 +150,4 @@ HISTORY
 BUGS
      Please file bugs and feature requests by emailing the author.
 
-NetBSD 7.0		       January 17, 2017			    NetBSD 7.0
+NetBSD 7.0		       January 04, 2019			    NetBSD 7.0
