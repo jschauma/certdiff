@@ -1,5 +1,9 @@
 Changelog:
 
+Version 1.5 (2019-12-03)
+* disable domain checks
+* alert on root certs in server provided chain
+
 Version 1.4 (2019-01-04)
 * add support for ECDSA certs
 

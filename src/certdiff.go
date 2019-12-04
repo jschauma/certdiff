@@ -122,7 +122,7 @@ type CertInfo struct {
 
 func argcheck(flag string, args []string, i int) {
 	if len(args) <= (i + 1) {
-		fail(fmt.Sprintf("'%v' needs an argument\n", flag))
+		fail("'%v' needs an argument.", flag)
 	}
 }
 
@@ -138,11 +138,11 @@ func buildCABundle() {
 
 	cabundle = expandTilde(cabundle)
 
-	verbose(fmt.Sprintf("Creating root CA bundle from '%s'...", cabundle), 1)
+	verbose(1, "Creating root CA bundle from '%s'...", cabundle)
 
 	fd, err := os.Open(cabundle)
 	if err != nil {
-		fail(fmt.Sprintf("Unable to open '%s': %v\n", cabundle, err))
+		fail("Unable to open '%s': %v", cabundle, err)
 	}
 
 	var pems []byte
@@ -161,7 +161,7 @@ func buildCABundle() {
 
 	ok := ROOTS.AppendCertsFromPEM(pems)
 	if !ok {
-		fail("Unable to create root CA pool.\n")
+		fail("Unable to create root CA pool.")
 	}
 
 	/* Now read it again!
@@ -172,15 +172,15 @@ func buildCABundle() {
 	fd.Close()
 	fd, err = os.Open(cabundle)
 	if err != nil {
-		fail(fmt.Sprintf("Unable to open '%s': %v\n", cabundle, err))
+		fail("Unable to open '%s': %v", cabundle, err)
 	}
 	defer fd.Close()
 	extractCertificates(fd, "root")
 }
 
 func buildChain(cert *x509.Certificate) {
-	verbose(fmt.Sprintf("Building certificate chain for %0x '%s' (leaf)...",
-		cert.SerialNumber, cert.Subject.CommonName), 1)
+	verbose(1, "Building certificate chain for %0x '%s' (leaf)...",
+		cert.SerialNumber, cert.Subject.CommonName)
 
 	CHAIN = append(CHAIN, cert)
 
@@ -194,11 +194,11 @@ func buildChain(cert *x509.Certificate) {
 	}
 	for c.Issuer.CommonName != c.Subject.CommonName {
 		found = false
-		verbose(fmt.Sprintf("Looking for issuer of %0x...", c.SerialNumber), 2)
+		verbose(2, "Looking for issuer of %0x...", c.SerialNumber)
 		for _, tmp := range sortCerts() {
 			if err := c.CheckSignatureFrom(tmp); err == nil {
-				verbose(fmt.Sprintf("Valid signature on %0x from %s.",
-					c.SerialNumber, tmp.Subject.CommonName), 3)
+				verbose(3, "Valid signature on %0x from %s.",
+					c.SerialNumber, tmp.Subject.CommonName)
 				found = true
 				CHAIN = append(CHAIN, tmp)
 				c = tmp
@@ -224,8 +224,8 @@ func buildChain(cert *x509.Certificate) {
 		if CONFIG["list"] == "true" {
 			fmt.Printf("-- incomplete --\n")
 		}
-		reportError(fmt.Sprintf("%0x '%s' (leaf): Incomplete chain or unknown root!",
-			cert.SerialNumber, cert.Subject.CommonName))
+		reportError("%0x '%s' (leaf): Incomplete chain or unknown root!",
+			cert.SerialNumber, cert.Subject.CommonName)
 		if len(CONFIG["cabundle"]) < 1 {
 			fmt.Printf("Missing roots - specify 'cabundle' in config?\n")
 		}
@@ -234,7 +234,7 @@ func buildChain(cert *x509.Certificate) {
 }
 
 func checkCerts() {
-	verbose("Checking all certificates...", 1)
+	verbose(1, "Checking all certificates...")
 
 	for _, cert := range CHAIN {
 		certType := CERTS[cert].CertType
@@ -264,8 +264,8 @@ func checkCT(cert *x509.Certificate, certType string) {
 		return
 	}
 
-	verbose(fmt.Sprintf("%0x '%s' (%s): checking certificate transparency...",
-		cert.SerialNumber, cert.Subject.CommonName, certType), 2)
+	verbose(2, "%0x '%s' (%s): checking certificate transparency...",
+		cert.SerialNumber, cert.Subject.CommonName, certType)
 
 	serial := fmt.Sprintf("%0x", cert.SerialNumber)
 	ctUrl := CTURL + "serial=" + url.QueryEscape(serial)
@@ -292,7 +292,7 @@ func checkCT(cert *x509.Certificate, certType string) {
 		r := regexp.MustCompile(`(?i)><a href="\?id=([0-9]+)">`)
 		if m := r.FindStringSubmatch(line); len(m) > 0 {
 			found = true
-			verbose(fmt.Sprintf("CT found: %s", ctUrl), 3)
+			verbose(3, "CT found: %s", ctUrl)
 			CERTS[cert].CTlog = CTURL + "id=" + m[1]
 			break
 		}
@@ -300,8 +300,8 @@ func checkCT(cert *x509.Certificate, certType string) {
 
 	if !found {
 		CERTS[cert].CTlog = "not found"
-		reportError(fmt.Sprintf("%0x '%s' (%s): CT log missing!",
-			cert.SerialNumber, cert.Subject.CommonName, certType))
+		reportError("%0x '%s' (%s): CT log missing!",
+			cert.SerialNumber, cert.Subject.CommonName, certType)
 	}
 }
 
@@ -310,8 +310,8 @@ func checkDomains(cert *x509.Certificate) {
 		return
 	}
 
-	verbose(fmt.Sprintf("%0x '%s' (leaf): checking approved domains...",
-		cert.SerialNumber, cert.Subject.CommonName), 2)
+	verbose(2, "%0x '%s' (leaf): checking approved domains...",
+		cert.SerialNumber, cert.Subject.CommonName)
 
 	var names []string
 
@@ -325,10 +325,10 @@ func checkDomains(cert *x509.Certificate) {
 		match := false
 
 		if _, found := checked[n]; found {
-			verbose(fmt.Sprintf("Already checked '%s'...", n), 3)
+			verbose(3, "Already checked '%s'...", n)
 			continue
 		} else {
-			verbose(fmt.Sprintf("Checking '%s'...", n), 3)
+			verbose(3, "Checking '%s'...", n)
 			checked[n] = true
 		}
 
@@ -338,7 +338,7 @@ func checkDomains(cert *x509.Certificate) {
 
 		for _, domain := range strings.Split(CONFIG["domains"], ",") {
 			domain = strings.TrimSpace(domain)
-			verbose(fmt.Sprintf("Checking domain '%s'...", domain), 4)
+			verbose(4, "Checking domain '%s'...", domain)
 			if strings.HasSuffix(n, "."+domain) || strings.EqualFold(n, domain) {
 				match = true
 				break
@@ -349,17 +349,17 @@ func checkDomains(cert *x509.Certificate) {
 			if i == 0 {
 				which = "SN"
 			}
-			reportError(fmt.Sprintf("%0x '%s' (leaf): %s (%s) not in list of approved domains (%s).",
+			reportError("%0x '%s' (leaf): %s (%s) not in list of approved domains (%s).",
 				cert.SerialNumber, cert.Subject.CommonName,
-				which, n, CONFIG["domains"]))
+				which, n, CONFIG["domains"])
 		}
 	}
 
 	if len(CONFIG["maxWildcards"]) > 0 {
 		maxWildcards, _ := strconv.Atoi(CONFIG["maxWildcards"])
 		if wildcards > maxWildcards {
-			reportError(fmt.Sprintf("%0x '%s' (leaf): too many wildcards (%d > %d).",
-				cert.SerialNumber, cert.Subject.CommonName, wildcards, maxWildcards))
+			reportError("%0x '%s' (leaf): too many wildcards (%d > %d).",
+				cert.SerialNumber, cert.Subject.CommonName, wildcards, maxWildcards)
 		}
 	}
 }
@@ -377,9 +377,9 @@ func checkKeyLength(cert *x509.Certificate, certType string) {
 	 * above, so no need to check for errors here. */
 	wantedKeyLength, _ := strconv.Atoi(CONFIG["keyLength"])
 
-	verbose(fmt.Sprintf("%0x '%s' (%s): checking key length >= %d...",
+	verbose(2, "%0x '%s' (%s): checking key length >= %d...",
 		cert.SerialNumber, cert.Subject.CommonName,
-		certType, wantedKeyLength), 2)
+		certType, wantedKeyLength)
 
 	switch pub := cert.PublicKey.(type) {
 	case *rsa.PublicKey:
@@ -399,9 +399,9 @@ func checkKeyLength(cert *x509.Certificate, certType string) {
 	CERTS[cert].KeyLength = foundKeyLength
 
 	if foundKeyLength < wantedKeyLength {
-		reportError(fmt.Sprintf("%0x '%s' (%s): keyLength mismatch (%d < %d)",
+		reportError("%0x '%s' (%s): keyLength mismatch (%d < %d)",
 			cert.SerialNumber, cert.Subject.CommonName,
-			certType, foundKeyLength, wantedKeyLength))
+			certType, foundKeyLength, wantedKeyLength)
 	}
 }
 
@@ -410,8 +410,8 @@ func checkPinsAndRootSerials(cert *x509.Certificate) {
 		return
 	}
 
-	verbose(fmt.Sprintf("%0x '%s' (leaf): checking pins and root serials...",
-		cert.SerialNumber, cert.Subject.CommonName), 2)
+	verbose(2, "%0x '%s' (leaf): checking pins and root serials...",
+		cert.SerialNumber, cert.Subject.CommonName)
 
 	type CertPins struct {
 		Pins map[string]string
@@ -438,7 +438,7 @@ func checkPinsAndRootSerials(cert *x509.Certificate) {
 	for _, c := range CHAIN {
 		serial := fmt.Sprintf("%0x", c.SerialNumber)
 
-		verbose(fmt.Sprintf("Checking pins for %s %s...", serial, c.Subject.CommonName), 3)
+		verbose(3, "Checking pins for %s %s...", serial, c.Subject.CommonName)
 
 		certPins, found := foundPins[serial]
 		if !found {
@@ -464,8 +464,8 @@ func checkPinsAndRootSerials(cert *x509.Certificate) {
 	}
 
 	if !pinFound && !serialFound {
-		reportError(fmt.Sprintf("%0x '%s' (leaf): no valid pin nor root serial found.",
-			cert.SerialNumber, cert.Subject.CommonName))
+		reportError("%0x '%s' (leaf): no valid pin nor root serial found.",
+			cert.SerialNumber, cert.Subject.CommonName)
 	}
 }
 
@@ -475,13 +475,13 @@ func checkSANs(cert *x509.Certificate) {
 	}
 	maxSANs, _ := strconv.Atoi(CONFIG["maxSANs"])
 
-	verbose(fmt.Sprintf("%0x '%s' (leaf): checking max number of SANs <= %s...",
-		cert.SerialNumber, cert.Subject.CommonName, CONFIG["maxSANs"]), 2)
+	verbose(2, "%0x '%s' (leaf): checking max number of SANs <= %s...",
+		cert.SerialNumber, cert.Subject.CommonName, CONFIG["maxSANs"])
 
 	if maxSANs < len(cert.DNSNames) {
-		reportError(fmt.Sprintf("%0x '%s' (leaf): too many SANs (%d > %d)",
+		reportError("%0x '%s' (leaf): too many SANs (%d > %d)",
 			cert.SerialNumber, cert.Subject.CommonName,
-			len(cert.DNSNames), maxSANs))
+			len(cert.DNSNames), maxSANs)
 	}
 }
 
@@ -493,8 +493,8 @@ func checkSigAlgs(cert *x509.Certificate, certType string) {
 		return
 	}
 
-	verbose(fmt.Sprintf("%0x '%s' (%s): checking signature algorithm %s...",
-		cert.SerialNumber, cert.Subject.CommonName, certType, sig), 2)
+	verbose(2, "%0x '%s' (%s): checking signature algorithm %s...",
+		cert.SerialNumber, cert.Subject.CommonName, certType, sig)
 
 	found := false
 	for _, s := range strings.Split(CONFIG["sigAlgs"], ",") {
@@ -506,8 +506,8 @@ func checkSigAlgs(cert *x509.Certificate, certType string) {
 	}
 
 	if !found {
-		reportError(fmt.Sprintf("%0x '%s' (%s): invalid signature algorithm (%s not in [%s])",
-			cert.SerialNumber, cert.Subject.CommonName, certType, sig, CONFIG["sigAlgs"]))
+		reportError("%0x '%s' (%s): invalid signature algorithm (%s not in [%s])",
+			cert.SerialNumber, cert.Subject.CommonName, certType, sig, CONFIG["sigAlgs"])
 	}
 }
 
@@ -519,27 +519,27 @@ func checkValidity(cert *x509.Certificate) {
 		return
 	}
 
-	verbose(fmt.Sprintf("%0x '%s' (leaf): checking validity <= %s...",
-		cert.SerialNumber, cert.Subject.CommonName, CONFIG["maxValidity"]), 2)
+	verbose(2, "%0x '%s' (leaf): checking validity <= %s...",
+		cert.SerialNumber, cert.Subject.CommonName, CONFIG["maxValidity"])
 
 	maxValidity, _ := strconv.Atoi(CONFIG["maxValidity"])
 
 	if int(days) > maxValidity {
-		reportError(fmt.Sprintf("%0x '%s' (leaf): validity > maxValidity (%d > %d)",
+		reportError("%0x '%s' (leaf): validity > maxValidity (%d > %d)",
 			cert.SerialNumber, cert.Subject.CommonName,
-			int(days), maxValidity))
+			int(days), maxValidity)
 	}
 
 	valid := time.Since(cert.NotAfter).Seconds()
 	if valid > 0 {
-		reportError(fmt.Sprintf("%0x '%s' (leaf): no longer valid",
-			cert.SerialNumber, cert.Subject.CommonName))
+		reportError("%0x '%s' (leaf): no longer valid",
+			cert.SerialNumber, cert.Subject.CommonName)
 	}
 }
 
 func certPin(cert *x509.Certificate, algo string) (pin string) {
 
-	verbose(fmt.Sprintf("Calculating %s pin for %0x...", algo, cert.SerialNumber), 4)
+	verbose(4, "Calculating %s pin for %0x...", algo, cert.SerialNumber)
 
 	pk, err := x509.MarshalPKIXPublicKey(cert.PublicKey)
 	if err != nil {
@@ -563,7 +563,7 @@ func certPin(cert *x509.Certificate, algo string) (pin string) {
 
 	pin = fmt.Sprintf("%s/%s", algo, pin)
 
-	verbose(fmt.Sprintf("%s pin for %0x is: %s", algo, cert.SerialNumber, pin), 4)
+	verbose(4, "%s pin for %0x is: %s", algo, cert.SerialNumber, pin)
 	return
 }
 
@@ -573,7 +573,7 @@ func expandTilde(in string) (out string) {
 		return
 	}
 
-	verbose(fmt.Sprintf("Expanding ~ in '%s'...", in), 2)
+	verbose(2, "Expanding ~ in '%s'...", in)
 	if in[1] == '/' {
 		if u, err := user.Current(); err == nil {
 			out = u.HomeDir + in[1:]
@@ -592,7 +592,7 @@ func expandTilde(in string) (out string) {
 }
 
 func extractCertificates(input io.ReadCloser, certType string) {
-	verbose("Extracting certificates from input...", 1)
+	verbose(1, "Extracting certificates of type '%s' from input...", certType)
 
 	var pemInput string
 	issuers := map[string]bool{}
@@ -607,18 +607,18 @@ func extractCertificates(input io.ReadCloser, certType string) {
 
 			block, _ := pem.Decode([]byte(pemInput))
 			if block == nil {
-				fail("Unable to decode certificate.\n")
+				fail("Unable to decode certificate.")
 			}
 			cert, err := x509.ParseCertificate(block.Bytes)
 			if err != nil {
-				fail(fmt.Sprintf("Unable to parse certificate: %s\n", err))
+				fail("Unable to parse certificate: %s", err)
 			}
 
-			verbose(fmt.Sprintf("Extracted: %0x '%s'", cert.SerialNumber, cert.Subject.CommonName), 2)
+			verbose(2, "Extracted: %0x '%s'", cert.SerialNumber, cert.Subject.CommonName)
 			serial := fmt.Sprintf("%0x", cert.SerialNumber)
 			if _, found := seenCerts[serial]; found {
-				reportError(fmt.Sprintf("Duplicate cert in input: %s '%s'",
-					serial, cert.Subject.CommonName))
+				reportError("Duplicate cert in input: %s '%s'",
+					serial, cert.Subject.CommonName)
 				continue
 			} else {
 				seenCerts[serial] = true
@@ -629,6 +629,8 @@ func extractCertificates(input io.ReadCloser, certType string) {
 				CERTS[cert].CertType = "root"
 			} else if cert.Issuer.CommonName != cert.Subject.CommonName {
 				issuers[cert.Issuer.CommonName] = true
+			} else if certType == "chain" {
+				reportError("Self-signed / root certificate found in chain: %0x '%s'", cert.SerialNumber, cert.Subject.CommonName)
 			}
 
 			pemInput = ""
@@ -657,8 +659,8 @@ func extractCertificates(input io.ReadCloser, certType string) {
 	}
 }
 
-func fail(msg string) {
-	fmt.Fprintf(os.Stderr, msg)
+func fail(format string, v ...interface{}) {
+	fmt.Fprintf(os.Stderr, format+"\n", v...)
 	os.Exit(EXIT_FAILURE)
 }
 
@@ -666,10 +668,10 @@ func getCertchainFromServer() {
 
 	server := fmt.Sprintf("%s:%s", CONFIG["server"], CONFIG["port"])
 
-	verbose(fmt.Sprintf("Retrieving certificate chain in use on '%s'...", server), 1)
+	verbose(1, "Retrieving certificate chain in use on '%s'...", server)
 
 	sclient := []string{"s_client", "-showcerts", "-connect", server}
-	verbose(fmt.Sprintf("Running openssl %s...", sclient), 2)
+	verbose(2, "Running openssl %s...", sclient)
 
 	cmd := exec.Command("openssl", sclient...)
 	cmd.Stdin = nil
@@ -679,11 +681,11 @@ func getCertchainFromServer() {
 
 	cmdOut, err := cmd.StdoutPipe()
 	if err != nil {
-		fail(fmt.Sprintf("Unable to create StdoutPipe: %s\n", err))
+		fail("Unable to create StdoutPipe: %s", err)
 	}
 
 	if err := cmd.Start(); err != nil {
-		fail(fmt.Sprintf("Unable to start command: %s\n", err))
+		fail("Unable to start command: %s", err)
 	}
 
 	extractCertificates(cmdOut, "chain")
@@ -786,14 +788,14 @@ func parseConfig() {
 	fname := CONFIG["configFile"]
 
 	if len(fname) < 1 {
-		verbose("No config file found, only checking basic defaults...", 1)
+		verbose(1, "No config file found, only checking basic defaults...")
 		return
 	}
 
-	verbose(fmt.Sprintf("Parsing config file '%s'...", fname), 1)
+	verbose(1, "Parsing config file '%s'...", fname)
 	fd, err := os.Open(fname)
 	if err != nil {
-		fail(fmt.Sprintf("Unable to open '%s': %v\n", fname, err))
+		fail("Unable to open '%s': %v", fname, err)
 	}
 	defer fd.Close()
 
@@ -820,8 +822,8 @@ func parseConfig() {
 
 		keyval := strings.SplitN(line, "=", 2)
 		if len(keyval) != 2 {
-			fail(fmt.Sprintf("Invalid line in configuration file '%s', line %d.",
-				fname, n))
+			fail("Invalid line in configuration file '%s', line %d.",
+				fname, n)
 		} else {
 			key := strings.TrimSpace(keyval[0])
 			val := strings.TrimSpace(keyval[1])
@@ -862,8 +864,8 @@ func parseConfig() {
 			case "maxWildcards":
 				i, err := strconv.Atoi(val)
 				if err != nil || i < 0 {
-					fail(fmt.Sprintf("Invalid value for '%s' on line %d.\n",
-						key, n))
+					fail("Invalid value for '%s' on line %d.",
+						key, n)
 				}
 				CONFIG[key] = val
 			default:
@@ -878,15 +880,15 @@ func printVersion() {
 	fmt.Printf("%v version %v\n", PROGNAME, VERSION)
 }
 
-func reportError(msg string) {
+func reportError(format string, v ...interface{}) {
 	if CONFIG["list"] != "true" {
 		RVAL++
-		fmt.Printf("%s\n", msg)
+		fmt.Printf(format+"\n", v...)
 	}
 }
 
 func sortCerts() (certs []*x509.Certificate) {
-	verbose("Sorting certificates by serial number...", 3)
+	verbose(3, "Sorting certificates by serial number...")
 
 	var serials []string
 	certsBySerial := map[string]*x509.Certificate{}
@@ -900,7 +902,7 @@ func sortCerts() (certs []*x509.Certificate) {
 	sort.Strings(serials)
 
 	for _, s := range serials {
-		verbose(fmt.Sprintf("Adding (in order): %s", s), 4)
+		verbose(4, "Adding (in order): %s", s)
 		certs = append(certs, certsBySerial[s])
 	}
 
@@ -922,8 +924,8 @@ func usage(out io.Writer) {
 }
 
 func verifyCert(cert *x509.Certificate) {
-	verbose(fmt.Sprintf("%0x '%s' (leaf): verifying certificate...",
-		cert.SerialNumber, cert.Subject.CommonName), 2)
+	verbose(2, "%0x '%s' (leaf): verifying certificate...",
+		cert.SerialNumber, cert.Subject.CommonName)
 
 	name := CONFIG["server"]
 	if len(name) < 1 {
@@ -945,21 +947,21 @@ func verifyCert(cert *x509.Certificate) {
 
 	valid := "valid"
 	if _, err := cert.Verify(opts); err != nil {
-		reportError(fmt.Sprintf("%0x '%s' (leaf): Unable to verify validity: %v",
-			cert.SerialNumber, cert.Subject.CommonName, err.Error()))
+		reportError("%0x '%s' (leaf): Unable to verify validity: %v",
+			cert.SerialNumber, cert.Subject.CommonName, err.Error())
 		valid = err.Error()
 	}
 
 	CERTS[cert].Verified = valid
 }
 
-func verbose(msg string, level int) {
+func verbose(level int, format string, v ...interface{}) {
 	if level <= VERBOSITY {
 		fmt.Fprintf(os.Stderr, "%s ", time.Now().Format("2006-01-02 15:04:05"))
 		for i := 0; i < level; i++ {
 			fmt.Fprintf(os.Stderr, "=")
 		}
-		fmt.Fprintf(os.Stderr, "> %v\n", msg)
+		fmt.Fprintf(os.Stderr, "> "+format+"\n", v...)
 	}
 }
 
